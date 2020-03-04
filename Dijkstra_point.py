@@ -25,7 +25,7 @@ def load_map(fname = None):
 
 def isValidNode(map_,x,y):
     rows,cols = map_.shape[:2]
-    if 0 <= x < rows and 0 <= y < cols :
+    if 0 <= x < rows and 0 <= y < cols and (map_[x][y]==(255,255,255)).all():
         return True
     else :
         return False
@@ -37,7 +37,7 @@ def getStartNode(map_):
         x = int(input("x_intial is: "))
         y = int(input("y_intial is: "))
         if not isValidNode(map_,x,y) :
-            print('Input Node not within map range. Please enter again!')
+            print('Input Node not within available map range. Please enter again!')
         else:
             break;
     return (x, y)
@@ -49,7 +49,7 @@ def getGoalNode(map_):
         x = int(input("x_goal is: "))
         y = int(input("y_goal is: "))
         if not isValidNode(map_,x,y) :
-            print('Input Node not within map range. Please enter again! ')
+            print('Input Node not within available map range. Please enter again! ')
         else:
             break;
     return (x, y)
@@ -69,49 +69,49 @@ def updateNeighbours(arr, map_, curr_node):
     x,y = curr_node
     ## top node
     if isValidNode(map_,x-1,y):
-        if (arr[x][y].cost + 1 < arr[x-1][y].cost ) and (map_[x-1,y] == (255,255,255)).all():
+        if (arr[x][y].cost + 1 < arr[x-1][y].cost):
             arr[x-1][y].cost = arr[x][y].cost + 1
             arr[x-1][y].parent = curr_node
 
     ## top-left node
     if isValidNode(map_,x-1,y-1):
-        if (arr[x][y].cost + 1.41 < arr[x-1][y-1].cost ) and (map_[x-1,y-1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1.41 < arr[x-1][y-1].cost):
             arr[x-1][y-1].cost = arr[x][y].cost + 1.41
             arr[x-1][y-1].parent = curr_node
 
     ## left node
     if isValidNode(map_,x,y-1):
-        if (arr[x][y].cost + 1 < arr[x][y-1].cost ) and (map_[x,y-1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1 < arr[x][y-1].cost):
             arr[x][y-1].cost = arr[x][y].cost + 1
             arr[x][y-1].parent = curr_node
 
     ## bottom-left node
     if isValidNode(map_,x+1,y-1):
-        if (arr[x][y].cost + 1.41 < arr[x+1][y-1].cost ) and (map_[x+1,y-1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1.41 < arr[x+1][y-1].cost):
             arr[x+1][y-1].cost = arr[x][y].cost + 1.41
             arr[x+1][y-1].parent = curr_node
 
     ## bottom_node
     if isValidNode(map_,x+1,y):
-        if (arr[x][y].cost + 1 < arr[x+1][y].cost ) and (map_[x+1,y] == (255,255,255)).all():
+        if (arr[x][y].cost + 1 < arr[x+1][y].cost):
             arr[x+1][y].cost = arr[x][y].cost + 1
             arr[x+1][y].parent = curr_node
 
     ## bottom-right node
     if isValidNode(map_,x+1,y+1):
-        if (arr[x][y].cost + 1.41 < arr[x+1][y+1].cost ) and (map_[x+1,y+1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1.41 < arr[x+1][y+1].cost):
             arr[x+1][y+1].cost = arr[x][y].cost + 1.41
             arr[x+1][y+1].parent = curr_node
 
     ## right node
     if isValidNode(map_,x,y+1):
-        if (arr[x][y].cost + 1 < arr[x][y+1].cost ) and (map_[x,y+1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1 < arr[x][y+1].cost):
             arr[x][y+1].cost = arr[x][y].cost + 1
             arr[x][y+1].parent = curr_node
 
     ## top-right node
     if isValidNode(map_,x-1,y+1):
-        if (arr[x][y].cost + 1.41 < arr[x-1][y+1].cost ) and (map_[x-1,y+1] == (255,255,255)).all():
+        if (arr[x][y].cost + 1.41 < arr[x-1][y+1].cost):
             arr[x-1][y+1].cost = arr[x][y].cost + 1.41
             arr[x-1][y+1].parent = curr_node
 
@@ -149,17 +149,6 @@ def saveVideo(images,output='path.avi'):
         out.write(img)
     out.release()
 
-
-def findDijkstraGoal(arr, map_, goal_node):
-    curr_node = findMinCost(arr)
-    if curr_node == goal_node:
-        print('reached Goal')
-        tracePath(arr,map_,goal_node)
-    else :
-        arr[curr_node[0]][curr_node[1]].visited = True
-        arr = updateNeighbours(arr, map_, curr_node)
-        findDijkstraGoal(arr,map_,goal_node)
-
 def visitedAll(arr):
     for i in range(len(arr)):
         for j in range(len(arr[i])):
@@ -175,7 +164,6 @@ def main():
     arr = [[Node() for j in range(cols)] for i in range(rows)]
     arr[start_node[0]][start_node[1]].visited = True
     arr[start_node[0]][start_node[1]].cost = 0
-    #findDijkstraGoal(arr,map_, goal_node)
     curr_node = start_node
     while not visitedAll(arr):
         if (curr_node == goal_node):
@@ -185,17 +173,6 @@ def main():
         arr[curr_node[0]][curr_node[1]].visited = True
         arr = updateNeighbours(arr, map_, curr_node)
         curr_node = findMinCost(arr)
-        #findDijkstraGoal(arr,map_,goal_node)
-
-
-
-
-
-
-
-
-
-
 
 if __name__=='__main__':
     main()
