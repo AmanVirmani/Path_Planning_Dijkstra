@@ -19,34 +19,37 @@ def load_map(fname = None):
     poly= np.array([p1,p2,p3,p4,p5,p6],np.int32)
     cv2.fillConvexPoly(world, poly, 255)
     cv2.imwrite('./map.jpg',world)
+
+    #world = 255*np.ones((10,10,3), np.uint8)
     return world
 
-def isValidNode(x,y):
-    if 0 <= x < 200 and 0<= y < 300 :
+def isValidNode(map_,x,y):
+    rows,cols = map_.shape[:2]
+    if 0 <= x < rows and 0 <= y < cols :
         return True
     else :
         return False
 
-def getStartNode():
+def getStartNode(map_):
     print("Enter the start co-ordinates")
     x,y = -1,-1
     while True :
         x = int(input("x_intial is: "))
         y = int(input("y_intial is: "))
-        if not isValidNode(x,y) :
-            print('Input Node not within map range. Please enter again! (0,300) ')
+        if not isValidNode(map_,x,y) :
+            print('Input Node not within map range. Please enter again!')
         else:
             break;
     return (x, y)
 
-def getGoalNode():
+def getGoalNode(map_):
     print("Enter the goal co-ordinates")
     x,y = -1,-1
     while True:
         x = int(input("x_goal is: "))
         y = int(input("y_goal is: "))
-        if not isValidNode(x,y) :
-            print('Input Node not within map range. Please enter again! (0,300) ')
+        if not isValidNode(map_,x,y) :
+            print('Input Node not within map range. Please enter again! ')
         else:
             break;
     return (x, y)
@@ -54,14 +57,9 @@ def getGoalNode():
 # A node structure for our search tree
 class Node:
     # A utility function to create a new node
-    # state : 3X3 array to reperesent puzzle board
-    # index : to identify node
-    # parent : pointer to parent node
-    # left : pointer to left child
-    # right : pointer to right child
-    # up : pointer to up child
-    # down : pointer to down child
-
+    # visited : flag to identify visited nodes
+    # parent : coordinate location of the parent
+    # cost : cost of reaching current node from start node
     def __init__(self, visited=False,parent=None, cost = math.inf ):
         self.visited = visited
         self.parent = parent
@@ -70,79 +68,84 @@ class Node:
 def updateNeighbours(arr, map_, curr_node):
     x,y = curr_node
     ## top node
-    if isValidNode(x-1,y) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1 < arr[x-1][y].cost ):
+    if isValidNode(map_,x-1,y):
+        if (arr[x][y].cost + 1 < arr[x-1][y].cost ) and (map_[x-1,y] == (255,255,255)).all():
             arr[x-1][y].cost = arr[x][y].cost + 1
             arr[x-1][y].parent = curr_node
 
     ## top-left node
-    if isValidNode(x-1,y-1) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1.41 < arr[x-1][y-1].cost ):
+    if isValidNode(map_,x-1,y-1):
+        if (arr[x][y].cost + 1.41 < arr[x-1][y-1].cost ) and (map_[x-1,y-1] == (255,255,255)).all():
             arr[x-1][y-1].cost = arr[x][y].cost + 1.41
             arr[x-1][y-1].parent = curr_node
 
     ## left node
-    if isValidNode(x,y-1) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1 < arr[x][y-1].cost ):
+    if isValidNode(map_,x,y-1):
+        if (arr[x][y].cost + 1 < arr[x][y-1].cost ) and (map_[x,y-1] == (255,255,255)).all():
             arr[x][y-1].cost = arr[x][y].cost + 1
             arr[x][y-1].parent = curr_node
 
     ## bottom-left node
-    if isValidNode(x+1,y-1) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1.41 < arr[x+1][y-1].cost ):
+    if isValidNode(map_,x+1,y-1):
+        if (arr[x][y].cost + 1.41 < arr[x+1][y-1].cost ) and (map_[x+1,y-1] == (255,255,255)).all():
             arr[x+1][y-1].cost = arr[x][y].cost + 1.41
             arr[x+1][y-1].parent = curr_node
 
     ## bottom_node
-    if isValidNode(x+1,y) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1 < arr[x+1][y].cost ):
+    if isValidNode(map_,x+1,y):
+        if (arr[x][y].cost + 1 < arr[x+1][y].cost ) and (map_[x+1,y] == (255,255,255)).all():
             arr[x+1][y].cost = arr[x][y].cost + 1
             arr[x+1][y].parent = curr_node
 
     ## bottom-right node
-    if isValidNode(x+1,y+1) and map_[x-1,y] == (255,255,255):
-        if (arr[x][y].cost + 1.41 < arr[x+1][y+1].cost ):
+    if isValidNode(map_,x+1,y+1):
+        if (arr[x][y].cost + 1.41 < arr[x+1][y+1].cost ) and (map_[x+1,y+1] == (255,255,255)).all():
             arr[x+1][y+1].cost = arr[x][y].cost + 1.41
             arr[x+1][y+1].parent = curr_node
 
     ## right node
-    if isValidNode(x,y+1) and map_[x,y+1] == (255,255,255):
-        if (arr[x][y].cost + 1 < arr[x][y+1].cost ):
+    if isValidNode(map_,x,y+1):
+        if (arr[x][y].cost + 1 < arr[x][y+1].cost ) and (map_[x,y+1] == (255,255,255)).all():
             arr[x][y+1].cost = arr[x][y].cost + 1
             arr[x][y+1].parent = curr_node
 
     ## top-right node
-    if isValidNode(x+1,y+1) and map_[x+1,y+1] == (255,255,255):
-        if (arr[x][y].cost + 1.41 < arr[x][y+1].cost ):
-            arr[x][y+1].cost = arr[x][y].cost + 1.41
-            arr[x][y+1].parent = arr[x][y]
+    if isValidNode(map_,x-1,y+1):
+        if (arr[x][y].cost + 1.41 < arr[x-1][y+1].cost ) and (map_[x-1,y+1] == (255,255,255)).all():
+            arr[x-1][y+1].cost = arr[x][y].cost + 1.41
+            arr[x-1][y+1].parent = curr_node
 
     return arr
 
 def findMinCost(arr):
-    curr_node = (0,0)
-    min_cost = arr[0][0].cost
+    curr_node = (-1,-1)
+    min_cost = math.inf
     for row in range(len(arr)):
         for col in range(len(arr[row])):
-            if arr[row][col].cost < min_cost:
+            if arr[row][col].cost < min_cost and not arr[row][col].visited:
                 curr_node = (row,col)
+                min_cost = arr[row][col].cost
     return curr_node
 
 def tracePath(arr,map_,goal_node):
     images= []
+    output = './output.avi'
     curr_node = goal_node
     while curr_node is not None:
-        img = map_
+        img = map_.copy()
         img[curr_node[0]][curr_node[1]] = (0,0,255)
         images.append(img)
+        curr_node = arr[curr_node[0]][curr_node[1]].parent
 
     images = images[::-1]
     saveVideo(images,output)
 
 def saveVideo(images,output='path.avi'):
     h,w = images[0].shape[:2]
-    out = cv2.VideoWriter(output,cv2.VideoWriter_fourcc('M','J','P','G'), 10, (w,h))
+    out = cv2.VideoWriter(output,cv2.VideoWriter_fourcc('M','J','P','G'), 1, (w,h))
     for img in images:
+        cv2.imshow('img',img)
+        cv2.waitKey(0);cv2.destroyAllWindows()
         out.write(img)
     out.release()
 
@@ -157,15 +160,41 @@ def findDijkstraGoal(arr, map_, goal_node):
         arr = updateNeighbours(arr, map_, curr_node)
         findDijkstraGoal(arr,map_,goal_node)
 
+def visitedAll(arr):
+    for i in range(len(arr)):
+        for j in range(len(arr[i])):
+            if not arr[i][j].visited:
+                return False
+    return True
+
 def main():
     map_ = load_map()
-    start_node = getStartNode()
-    goal_node = getGoalNode()
+    start_node = getStartNode(map_)
+    goal_node = getGoalNode(map_)
     rows, cols = map_.shape[:2]
     arr = [[Node() for j in range(cols)] for i in range(rows)]
     arr[start_node[0]][start_node[1]].visited = True
     arr[start_node[0]][start_node[1]].cost = 0
-    findDijkstraGoal(arr,map_, goal_node)
+    #findDijkstraGoal(arr,map_, goal_node)
+    curr_node = start_node
+    while not visitedAll(arr):
+        if (curr_node == goal_node):
+            print('found Goal!!')
+            tracePath(arr,map_,goal_node)
+            break
+        arr[curr_node[0]][curr_node[1]].visited = True
+        arr = updateNeighbours(arr, map_, curr_node)
+        curr_node = findMinCost(arr)
+        #findDijkstraGoal(arr,map_,goal_node)
+
+
+
+
+
+
+
+
+
 
 
 if __name__=='__main__':
