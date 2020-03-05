@@ -9,11 +9,8 @@ Original file is located at
 
 import numpy as np
 import cv2
-from google.colab.patches import cv2_imshow
 from math import *
 
-world= 255*np.ones((200,300,3))
-rc=0
 def findLine(pt1,pt2):
   m = (pt2[1]-pt1[1])/(pt2[0]-pt1[0])
   c = pt1[1]-m*pt1[0]
@@ -99,11 +96,14 @@ def obstacle_polygon(world):
          world[row][col]=(255,0,0)
 
 
-
-obstacle_circle(world)
-obstacle_ellipse(world)
-obstacle_rhombus(world)
-obstacle_rectangle(world)
-obstacle_polygon(world)
-cv2.imwrite('./map.jpg', world)
-cv2_imshow(world)
+if __name__=='__main__':
+    world= 255*np.ones((200,300,3))
+    rc=0
+    obstacle_circle(world)
+    obstacle_ellipse(world)
+    obstacle_rhombus(world)
+    obstacle_rectangle(world)
+    obstacle_polygon(world)
+    cv2.imwrite('./map.jpg', world)
+    cv2.imshow('map', world)
+    cv2.waitKey(0);cv2.destroyAllWindows()

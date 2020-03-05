@@ -1,26 +1,25 @@
 import numpy as np
 import cv2
 import math
+import obstacle_map
 
 def load_map(fname = None):
     if fname is not None :
-        map = cv2.imread(fname)
-        return map
+        map_ = cv2.imread(fname)
+        return map_
+    try :
+        map_ = cv2.imread('./map.jpg')
+        return map_
+    except :
+        world= 255*np.ones((200,300,3))
+        rc=0
+        obstacle_map.obstacle_circle(world)
+        obstacle_map.obstacle_ellipse(world)
+        obstacle_map.obstacle_rhombus(world)
+        obstacle_map.obstacle_rectangle(world)
+        obstacle_map.obstacle_polygon(world)
 
-    world= 255*np.ones((200, 300, 3), np.uint8)
-    cv2.circle(world, (225,50), 25, (0, 0, 0), -1)      #actual obstacle space
-    cv2.ellipse(world, (150,100), (40,20), 0, 0, 360, 0, -1)
-    p1= [25, 15]
-    p2= [75, 15]
-    p3= [100, 50]
-    p4= [75, 80]
-    p5= [50, 50]
-    p6= [20, 80]
-    poly= np.array([p1,p2,p3,p4,p5,p6],np.int32)
-    cv2.fillConvexPoly(world, poly, 255)
-    cv2.imwrite('./map.jpg',world)
-
-    #world = 255*np.ones((10,10,3), np.uint8)
+        cv2.imwrite('./map.jpg',world)
     return world
 
 def isValidNode(map_,x,y):
@@ -176,5 +175,5 @@ def main():
 
 if __name__=='__main__':
     main()
-    #print('start_node is : {}'.format(getStartNode()))
-    #rint('goal_node is : {}'.format(getGoalNode()))
+    ## TODO: take input in cartesian coordinates and convert them to image coordinates before using the rest of the code
+    ## TODO: publish video to show visited nodes  and an image for found path
