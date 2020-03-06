@@ -7,19 +7,15 @@ def load_map(fname = None):
     if fname is not None :
         map_ = cv2.imread(fname)
         return map_
-    try :
-        map_ = cv2.imread('./map.jpg')
-        return map_
-    except :
-        world= 255*np.ones((200,300,3))
-        rc=0
-        obstacle_map.obstacle_circle(world)
-        obstacle_map.obstacle_ellipse(world)
-        obstacle_map.obstacle_rhombus(world)
-        obstacle_map.obstacle_rectangle(world)
-        obstacle_map.obstacle_polygon(world)
+    world= 255*np.ones((200,300,3))
+    rc=0
+    obstacle_map.obstacle_circle(world)
+    obstacle_map.obstacle_ellipse(world)
+    obstacle_map.obstacle_rhombus(world)
+    obstacle_map.obstacle_rectangle(world)
+    obstacle_map.obstacle_polygon(world)
 
-        cv2.imwrite('./map.jpg',world)
+    cv2.imwrite('./map.jpg',world)
     return world
 
 def isValidNode(map_,x,y):
@@ -31,27 +27,33 @@ def isValidNode(map_,x,y):
 
 def getStartNode(map_):
     print("Enter the start co-ordinates")
-    x,y = -1,-1
+    rows, cols= map_.shape[:2]
     while True :
+        ## Cartesian Form
         x = int(input("x_intial is: "))
         y = int(input("y_intial is: "))
-        if not isValidNode(map_,x,y) :
+        ## image coordinates
+        row = rows-y-1 ; col = x
+        if not isValidNode(map_, row, col):
             print('Input Node not within available map range. Please enter again!')
         else:
             break;
-    return (x, y)
+    return (row, col)
 
 def getGoalNode(map_):
     print("Enter the goal co-ordinates")
-    x,y = -1,-1
+    rows, cols= map_.shape[:2]
     while True:
+        ## Cartesian Form
         x = int(input("x_goal is: "))
         y = int(input("y_goal is: "))
-        if not isValidNode(map_,x,y) :
+        ## image coordinates
+        row = rows-y-1 ; col = x
+        if not isValidNode(map_, row, col):
             print('Input Node not within available map range. Please enter again! ')
         else:
             break;
-    return (x, y)
+    return (row, col)
 
 # A node structure for our search tree
 class Node:
@@ -142,6 +144,7 @@ def tracePath(arr,map_,goal_node):
 def saveVideo(images,output='path.avi'):
     h,w = images[0].shape[:2]
     out = cv2.VideoWriter(output,cv2.VideoWriter_fourcc('M','J','P','G'), 1, (w,h))
+    images= np.uint8(images)
     for img in images:
         cv2.imshow('img',img)
         cv2.waitKey(0);cv2.destroyAllWindows()
@@ -166,7 +169,7 @@ def main():
     curr_node = start_node
     while not visitedAll(arr):
         if (curr_node == goal_node):
-            print('found Goal!!')
+            print('found Goal at cost {}!!'.format(arr[goal_node[0]][goal_node[1]].cost))
             tracePath(arr,map_,goal_node)
             break
         arr[curr_node[0]][curr_node[1]].visited = True
