@@ -24,6 +24,8 @@ def isValidNode(map_,x,y,r):
     if 0 <= x-r and x+r < rows and 0 <= y-r and y+r < cols:
         if not detectCollision(map_, (x, y), r):
             return True
+        else :
+            return False
     else:
         return False
 
@@ -31,8 +33,10 @@ def detectCollision(img, center,radius):
     for i in range(2*radius+1):
         for j in range(2*radius+1):
             if i**2+j**2 <= radius**2:
-                if not (img[center[0]+i][center[1]+j]==(255,255,255)).any() and not (img[center[0]+i][center[1]-j]==(255,255,255)).any()\
-                        and not (img[center[0]-i][center[1]-j]==(255,255,255)).any() and not (img[center[0]-i][center[1]+j]==(255,255,255)).any():
+                if not ((img[center[0]+i][center[1]+j]==(255,255,255)).all() and (img[center[0]+i][center[1]-j]==(255,255,255)).all()\
+                        and (img[center[0]-i][center[1]-j]==(255,255,255)).all() and (img[center[0]-i][center[1]+j]==(255,255,255)).all()):
+                #if not (img[center[0]+i][center[1]+j]==(255,255,255)).any() and not (img[center[0]+i][center[1]-j]==(255,255,255)).any()\
+                #        and not (img[center[0]-i][center[1]-j]==(255,255,255)).any() and not (img[center[0]-i][center[1]+j]==(255,255,255)).any():
                     return True
     return False
 
@@ -49,8 +53,8 @@ def getStartNode(map_):
             print('Input Node not within available map range. Please enter again!')
         else:
             break;
-    #return (row, col)
-    return (col, row)
+    return (row, col)
+    #return (col, row)
 
 def getGoalNode(map_):
     print("Enter the goal co-ordinates")
@@ -65,8 +69,8 @@ def getGoalNode(map_):
             print('Input Node not within available map range. Please enter again! ')
         else:
             break;
-    #return (row, col)
-    return (col, row)
+    return (row, col)
+    #return (col, row)
 
 # A node structure for our search tree
 class Node:
@@ -155,7 +159,7 @@ def tracePath(arr,map_,goal_node,r):
     curr_node = goal_node
     while curr_node is not None:
         img = map_.copy()
-        cv2.circle(img, curr_node, r, (0,0,255), -1)
+        cv2.circle(img, (curr_node[1],curr_node[0]), r, (0,0,255), -1)
         #cv2.imshow('img',img)
         #cv2.waitKey(0)
         images.append(img)
@@ -169,6 +173,8 @@ def saveVideo(images,output='path.avi'):
     out = cv2.VideoWriter(output,cv2.VideoWriter_fourcc('M','J','P','G'), 1, (w,h))
     images= np.uint8(images)
     for img in images:
+        cv2.imshow('img',img)
+        cv2.waitKey(0)
         out.write(img)
     out.release()
 
