@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import math
+import time
 import obstacle_map
 from queue import PriorityQueue
 
@@ -35,12 +36,16 @@ def detectCollision(img, center,radius):
             if i**2+j**2 <= radius**2:
                 if not ((img[center[0]+i][center[1]+j]==(255,255,255)).all() and (img[center[0]+i][center[1]-j]==(255,255,255)).all()\
                         and (img[center[0]-i][center[1]-j]==(255,255,255)).all() and (img[center[0]-i][center[1]+j]==(255,255,255)).all()):
-                #if not (img[center[0]+i][center[1]+j]==(255,255,255)).any() and not (img[center[0]+i][center[1]-j]==(255,255,255)).any()\
-                #        and not (img[center[0]-i][center[1]-j]==(255,255,255)).any() and not (img[center[0]-i][center[1]+j]==(255,255,255)).any():
                     return True
     return False
 
-def getStartNode(map_):
+def getRC():
+   r = int(input('Enter radius of the robot: '))
+   c = int(input('Enter desired clearance: '))
+   return r,c
+
+
+def getStartNode(map_,r):
     print("Enter the start co-ordinates")
     rows, cols= map_.shape[:2]
     while True :
@@ -54,9 +59,8 @@ def getStartNode(map_):
         else:
             break;
     return (row, col)
-    #return (col, row)
 
-def getGoalNode(map_):
+def getGoalNode(map_,r):
     print("Enter the goal co-ordinates")
     rows, cols= map_.shape[:2]
     while True:
@@ -70,7 +74,6 @@ def getGoalNode(map_):
         else:
             break;
     return (row, col)
-    #return (col, row)
 
 # A node structure for our search tree
 class Node:
@@ -186,31 +189,30 @@ def visitedAll(arr):
     return True
 
 def main():
+    r,c = getRC()
     map_ = load_map()
-    global r
-    r = 3
-    start_node = getStartNode(map_)
-    goal_node = getGoalNode(map_)
+    #global r
+    #r = r+c
+    start_node = getStartNode(map_,r+c)
+    goal_node = getGoalNode(map_,r+c)
     rows, cols = map_.shape[:2]
     arr = np.array([[Node() for j in range(cols)] for i in range(rows)])
     arr[start_node[0]][start_node[1]].visited = True
     arr[start_node[0]][start_node[1]].cost = 0
     queue = PriorityQueue()
     queue.put((arr[start_node[0]][start_node[1]].cost, start_node))
-    #curr_node = start_node
+    start_time = time.time()
     while queue:
         curr_node = queue.get()[1]
         if (curr_node == goal_node):
-            print('found Goal at cost {}!!'.format(arr[goal_node[0]][goal_node[1]].cost))
+            algo_time = time.time()
+            print('found Goal in {}s at cost {}!!'.format(algo_time-start_time, arr[goal_node[0]][goal_node[1]].cost))
             tracePath(arr,map_,goal_node,r)
             break
         arr[curr_node[0]][curr_node[1]].visited = True
-        arr = updateNeighbours(arr, map_, curr_node,queue,r)
-        #curr_node = findMinCost(arr)
+        arr = updateNeighbours(arr, map_, curr_node,queue,r+c)
 
 if __name__=='__main__':
     main()
     ## TODO: add exploration video : Nidhi
-    ## TODO: add image for traced path : Aman/Nidhi
-    ## TODO: add collision space : Aman
-    ## TODO: take r, c from user : Aman
+    ## TODO: add image for traced path : Nidhi
