@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import math
 import obstacle_map
+import time
 from queue import PriorityQueue
 
 def load_map(fname = None):
@@ -177,18 +178,16 @@ def main():
     arr[start_node[0]][start_node[1]].cost = 0
     queue = PriorityQueue()
     queue.put((arr[start_node[0]][start_node[1]].cost, start_node))
-    #curr_node = start_node
+    start_time = time.time()
     while queue:
         curr_node = queue.get()[1]
         if (curr_node == goal_node):
-            print('found Goal at cost {}!!'.format(arr[goal_node[0]][goal_node[1]].cost))
+            algo_time = time.time()
+            print('found Goal in {}s at cost {}!!'.format(algo_time-start_time, arr[goal_node[0]][goal_node[1]].cost))
             tracePath(arr,map_,goal_node)
             break
         arr[curr_node[0]][curr_node[1]].visited = True
         arr = updateNeighbours(arr, map_, curr_node,queue)
-        #curr_node = findMinCost(arr)
 
 if __name__=='__main__':
     main()
-    ## TODO: take input in cartesian coordinates and convert them to image coordinates before using the rest of the code
-    ## TODO: publish video to show visited nodes  and an image for found path
