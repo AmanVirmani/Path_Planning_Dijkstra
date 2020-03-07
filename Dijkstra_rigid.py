@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import math
 import obstacle_map
+from queue import PriorityQueue
 
 def load_map(fname = None):
     if fname is not None :
@@ -78,55 +79,63 @@ class Node:
         self.parent = parent
         self.cost = cost
 
-def updateNeighbours(arr, map_, curr_node,r):
+def updateNeighbours(arr, map_, curr_node,queue,r):
     x,y = curr_node
     ## top node
     if isValidNode(map_,x-1, y, r):
         if (arr[x][y].cost + 1 < arr[x-1][y].cost):
             arr[x-1][y].cost = arr[x][y].cost + 1
             arr[x-1][y].parent = curr_node
+            queue.put((arr[x-1][y].cost,(x-1,y)))
 
     ## top-left node
     if isValidNode(map_,x-1,y-1,r):
         if (arr[x][y].cost + 1.41 < arr[x-1][y-1].cost):
             arr[x-1][y-1].cost = arr[x][y].cost + 1.41
             arr[x-1][y-1].parent = curr_node
+            queue.put((arr[x-1][y-1].cost,(x-1,y-1)))
 
     ## left node
     if isValidNode(map_,x,y-1,r):
         if (arr[x][y].cost + 1 < arr[x][y-1].cost):
             arr[x][y-1].cost = arr[x][y].cost + 1
             arr[x][y-1].parent = curr_node
+            queue.put((arr[x][y-1].cost,(x,y-1)))
 
     ## bottom-left node
     if isValidNode(map_,x+1,y-1,r):
         if (arr[x][y].cost + 1.41 < arr[x+1][y-1].cost):
             arr[x+1][y-1].cost = arr[x][y].cost + 1.41
             arr[x+1][y-1].parent = curr_node
+            queue.put((arr[x+1][y-1].cost,(x+1,y-1)))
 
     ## bottom_node
     if isValidNode(map_,x+1,y,r):
         if (arr[x][y].cost + 1 < arr[x+1][y].cost):
             arr[x+1][y].cost = arr[x][y].cost + 1
             arr[x+1][y].parent = curr_node
+            queue.put((arr[x+1][y].cost,(x+1,y)))
 
     ## bottom-right node
     if isValidNode(map_,x+1,y+1,r):
         if (arr[x][y].cost + 1.41 < arr[x+1][y+1].cost):
             arr[x+1][y+1].cost = arr[x][y].cost + 1.41
             arr[x+1][y+1].parent = curr_node
+            queue.put((arr[x+1][y+1].cost,(x+1,y+1)))
 
     ## right node
     if isValidNode(map_,x,y+1,r):
         if (arr[x][y].cost + 1 < arr[x][y+1].cost):
             arr[x][y+1].cost = arr[x][y].cost + 1
             arr[x][y+1].parent = curr_node
+            queue.put((arr[x][y+1].cost,(x,y+1)))
 
     ## top-right node
     if isValidNode(map_,x-1,y+1,r):
         if (arr[x][y].cost + 1.41 < arr[x-1][y+1].cost):
             arr[x-1][y+1].cost = arr[x][y].cost + 1.41
             arr[x-1][y+1].parent = curr_node
+            queue.put((arr[x-1][y+1].cost,(x-1,y+1)))
 
     return arr
 
@@ -147,8 +156,8 @@ def tracePath(arr,map_,goal_node,r):
     while curr_node is not None:
         img = map_.copy()
         cv2.circle(img, curr_node, r, (0,0,255), -1)
-        cv2.imshow('img',img)
-        cv2.waitKey(0)
+        #cv2.imshow('img',img)
+        #cv2.waitKey(0)
         images.append(img)
         curr_node = arr[curr_node[0]][curr_node[1]].parent
     cv2.destroyAllWindows()
@@ -180,15 +189,18 @@ def main():
     arr = np.array([[Node() for j in range(cols)] for i in range(rows)])
     arr[start_node[0]][start_node[1]].visited = True
     arr[start_node[0]][start_node[1]].cost = 0
-    curr_node = start_node
-    while not visitedAll(arr):
+    queue = PriorityQueue()
+    queue.put((arr[start_node[0]][start_node[1]].cost, start_node))
+    #curr_node = start_node
+    while queue:
+        curr_node = queue.get()[1]
         if (curr_node == goal_node):
             print('found Goal at cost {}!!'.format(arr[goal_node[0]][goal_node[1]].cost))
             tracePath(arr,map_,goal_node,r)
             break
         arr[curr_node[0]][curr_node[1]].visited = True
-        arr = updateNeighbours(arr, map_, curr_node,r)
-        curr_node = findMinCost(arr)
+        arr = updateNeighbours(arr, map_, curr_node,queue,r)
+        #curr_node = findMinCost(arr)
 
 if __name__=='__main__':
     main()
