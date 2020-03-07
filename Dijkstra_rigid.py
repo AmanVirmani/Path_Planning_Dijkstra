@@ -160,14 +160,12 @@ def tracePath(arr,map_,goal_node,r):
     images= []
     output = './output_rigid.avi'
     curr_node = goal_node
+    img = map_.copy()
     while curr_node is not None:
-        img = map_.copy()
         cv2.circle(img, (curr_node[1],curr_node[0]), r, (0,0,255), -1)
-        #cv2.imshow('img',img)
-        #cv2.waitKey(0)
         images.append(img)
+        cv2.circle(img, (curr_node[1],curr_node[0]), r, (0,0,0), -1)
         curr_node = arr[curr_node[0]][curr_node[1]].parent
-    cv2.destroyAllWindows()
     images = images[::-1]
     saveVideo(images,output)
 
@@ -176,23 +174,23 @@ def saveVideo(images,output='path.avi'):
     out = cv2.VideoWriter(output,cv2.VideoWriter_fourcc('M','J','P','G'), 1, (w,h))
     images= np.uint8(images)
     for img in images:
-        cv2.imshow('img',img)
-        cv2.waitKey(0)
+        cv2.imshow('path traced',img)
+        cv2.waitKey(10)
         out.write(img)
     out.release()
 
-def visitedAll(arr):
-    for i in range(len(arr)):
-        for j in range(len(arr[i])):
-            if not arr[i][j].visited:
-                return False
-    return True
+def exploredPath(map_,arr):
+    img = map_.copy()
+    rows,cols = map_.shape[:2]
+    for row in range(rows):
+        for col in range(cols):
+            if arr[row][col].visited:
+                img[row][col]==(0,255,255)
+    return img
 
 def main():
     r,c = getRC()
     map_ = load_map()
-    #global r
-    #r = r+c
     start_node = getStartNode(map_,r+c)
     goal_node = getGoalNode(map_,r+c)
     rows, cols = map_.shape[:2]
@@ -202,6 +200,8 @@ def main():
     queue = PriorityQueue()
     queue.put((arr[start_node[0]][start_node[1]].cost, start_node))
     start_time = time.time()
+    img = map_.copy()
+    img[goal_node[0]][goal_node[1]] = (0,0,255)
     while queue:
         curr_node = queue.get()[1]
         if (curr_node == goal_node):
@@ -211,8 +211,12 @@ def main():
             break
         arr[curr_node[0]][curr_node[1]].visited = True
         arr = updateNeighbours(arr, map_, curr_node,queue,r+c)
+        img[curr_node[0]][curr_node[1]] = (0,255,0)
+        cv2.imshow('explored',img)
+        cv2.waitKey(10)
+        #exploredList.append(img)
+    #saveVideo(exploredList,'explored.avi')
+    cv2.destroyAllWindows()
 
 if __name__=='__main__':
     main()
-    ## TODO: add exploration video : Nidhi
-    ## TODO: add image for traced path : Nidhi
