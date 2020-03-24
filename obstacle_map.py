@@ -14,9 +14,9 @@ from math import *
 def findLine(pt1,pt2):
   m = (pt2[1]-pt1[1])/(pt2[0]-pt1[0])
   c = pt1[1]-m*pt1[0]
-  return m,c 
+  return m, c
   
-def obstacle_circle(world):
+def obstacle_circle(world,rc=0):
   crow= 50 
   ccol= 225 
   rad= 25+rc
@@ -25,7 +25,7 @@ def obstacle_circle(world):
       if (row- crow)**2+(col-ccol)**2- rad**2<= 0:
         world[row][col]=(255,0,0)
 
-def obstacle_ellipse(world):
+def obstacle_ellipse(world,rc=0):
   center= [100, 150]
   a= 40 +rc                                                                     #major axis
   b= 20 +rc                                                                     #minor axis
@@ -34,7 +34,7 @@ def obstacle_ellipse(world):
       if ((row-center[0])**2/(b**2))+((col-center[1])**2/(a**2))-1<=0:
         world[row][col]=(255,0,0)
 
-def obstacle_rhombus(world):
+def obstacle_rhombus(world,rc=0):
    p1=(160,225)
    p2=(175,250)
    p3=(190,225)
@@ -52,7 +52,7 @@ def obstacle_rhombus(world):
       if col-m1*row -c1<=0 and col-m2*row-c2<=0 and col-m3*row - c3>=0 and col-m4*row - c4>=0:
         world[row][col]=(255,0,0)
 
-def obstacle_rectangle(world):
+def obstacle_rectangle(world,rc=0):
   p1=(170,95)
   p2=(170-(75*sin(radians(30))), 95-(75*cos(radians(30))))
   p3=(170-75*sin(radians(30))-10*sin(radians(60)), 95-75*cos(radians(30))+10*cos(radians(60)))
@@ -70,7 +70,7 @@ def obstacle_rectangle(world):
       if col-m1*row -c1>=0 and col-m2*row-c2>=0 and col-m3*row - c3<=0 and col-m4*row - c4<=0:
         world[row][col]=(255,0,0)
 
-def obstacle_polygon(world):
+def obstacle_polygon(world,rc=0):
   p1=(15,25)
   p2=(15,75)
   p3=(50,100)
