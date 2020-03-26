@@ -17,4 +17,4 @@ install:
 
 # Run python scripts
 script:
-  - python3 Dijkstra_point.py
+  - python3 Dijkstra_point.py -s 0 0 -g 299 199
