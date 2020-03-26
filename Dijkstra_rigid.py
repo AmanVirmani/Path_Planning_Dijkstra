@@ -151,7 +151,7 @@ def findMinCost(arr):
 def tracePath(arr, img, goal_node, r):
     nodes = []
     images= []
-    output = './output_rigid.gif'
+    output = './output.gif'
     curr_node = goal_node
     while curr_node is not None:
         nodes.append(curr_node)
