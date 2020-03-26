@@ -14,6 +14,7 @@ before_install:
 install:
   - sudo apt-get install python3
   - pip3 install numpy opencv-python
+  - pip3 install imageio
 
 # Run python scripts
 script:
