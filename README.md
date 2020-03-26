@@ -4,6 +4,11 @@
 
 ## Overview
 Implementation of Dijkstra algorithm for a Point and Rigid Robot
+<p align="center">
+  <img src="https://github.com/AmanVirmani/Path_Planning_Dijkstra/blob/master/output.gif">
+  <br><b>Fig 1: Optimal path found for a rigid robot using Dijkstra Algorithm</b><br>
+</p>
+
 
 ## Build Instructions
 
